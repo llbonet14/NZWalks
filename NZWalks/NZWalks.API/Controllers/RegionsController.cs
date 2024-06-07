@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using NZWalks.API.Data;
 using NZWalks.API.Models.Domain;
 using NZWalks.API.Models.DTO;
+using NZWalks.API.Repositories;
 
 namespace NZWalks.API.Controllers
 {
@@ -10,18 +11,18 @@ namespace NZWalks.API.Controllers
     [ApiController]
     public class RegionsController : ControllerBase
     {
-        private readonly NZWalksDbContext dbContext;
+        private readonly IRegionRepository regionRepository;
 
-        public RegionsController(NZWalksDbContext dbContext)
+        public RegionsController(IRegionRepository regionRepository)
         {
-            this.dbContext = dbContext;
+            this.regionRepository = regionRepository;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             // Get Region From Database - Domain Model
-            var regionsDomain = await dbContext.Regions.ToListAsync();
+            var regionsDomain = await regionRepository.GetAllAsync();
 
             // Map Domain Model to DTO
             var regionsDto = regionsDomain.Select(r => new RegionDto
@@ -42,7 +43,7 @@ namespace NZWalks.API.Controllers
         {
             // Use Find method only for primary key
             // Get Region From Database - Domain Model
-            var regionDomain = await dbContext.Regions.FindAsync(id);
+            var regionDomain = await regionRepository.GetByIdAsync(id);
 
             if (regionDomain == null)
                 return NotFound();
@@ -72,8 +73,7 @@ namespace NZWalks.API.Controllers
             };
 
             // Add Region to Database
-            dbContext.Regions.Add(regionDomain);
-            await dbContext.SaveChangesAsync();
+            regionDomain = await regionRepository.CreateAsync(regionDomain);
 
             // Map Domain Model to DTO
             var regionDto = new RegionDto
@@ -92,27 +92,26 @@ namespace NZWalks.API.Controllers
         [Route("{id:guid}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateRegionRequestDto region)
         {
+            var regionUpdateModel = new Region
+            {
+                Code = region.Code,
+                Name = region.Name,
+                RegionImageUrl = region.RegionImageUrl
+            };
+
             // Get Region From Database - Domain Model
-            var regionDomain = await dbContext.Regions.FindAsync(id);
+            regionUpdateModel = await regionRepository.UpdateAsync(id, regionUpdateModel);
 
-            if (regionDomain == null)
+            if (regionUpdateModel == null)
                 return NotFound();
-
-            // Update Domain Model
-            regionDomain.Name = region.Name;
-            regionDomain.Code = region.Code;
-            regionDomain.RegionImageUrl = region.RegionImageUrl;
-
-            // Update Region in Database
-            await dbContext.SaveChangesAsync();
 
             // Map Domain Model to DTO
             var regionDto = new RegionDto
             {
-                Id = regionDomain.Id,
-                Name = regionDomain.Name,
-                Code = regionDomain.Code,
-                RegionImageUrl = regionDomain.RegionImageUrl
+                Id = regionUpdateModel.Id,
+                Name = regionUpdateModel.Name,
+                Code = regionUpdateModel.Code,
+                RegionImageUrl = regionUpdateModel.RegionImageUrl
             };
 
             // Return DTO
@@ -124,16 +123,20 @@ namespace NZWalks.API.Controllers
         public async Task<IActionResult> Delete(Guid id)
         {
             // Get Region From Database - Domain Model
-            var regionDomain = await dbContext.Regions.FindAsync(id);
+            var regionDomain = await regionRepository.DeleteAsync(id);
 
             if (regionDomain == null)
                 return NotFound();
 
-            // Delete Region from Database
-            dbContext.Regions.Remove(regionDomain);
-            await dbContext.SaveChangesAsync();
+            var regionDto = new RegionDto
+            {
+                Id = regionDomain.Id,
+                Name = regionDomain.Name,
+                Code = regionDomain.Code,
+                RegionImageUrl = regionDomain.RegionImageUrl
+            };
 
-            return Ok();
+            return Ok(regionDto);
         }
     }
 }
