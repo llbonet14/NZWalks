@@ -36,8 +36,8 @@ namespace NZWalks.API.Controllers
         }
 
         [HttpGet]
-        [Route("{id}")]
-        public IActionResult GetRegion(Guid id)
+        [Route("{id:guid}")]
+        public IActionResult GetById(Guid id)
         {
             // Use Find method only for primary key
             // Get Region From Database - Domain Model
@@ -60,7 +60,7 @@ namespace NZWalks.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateRegion([FromBody] AddRegionRequestDto region)
+        public IActionResult Create([FromBody] AddRegionRequestDto region)
         {
             // Map DTO to Domain Model
             var regionDomain = new Region
@@ -84,7 +84,38 @@ namespace NZWalks.API.Controllers
             };
 
             // Return DTO
-            return CreatedAtAction(nameof(GetRegion), new { id = regionDto.Id }, regionDto);
+            return CreatedAtAction(nameof(GetById), new { id = regionDto.Id }, regionDto);
+        }
+
+        [HttpPut]
+        [Route("{id:guid}")]
+        public IActionResult Update(Guid id, [FromBody] UpdateRegionRequestDto region)
+        {
+            // Get Region From Database - Domain Model
+            var regionDomain = dbContext.Regions.Find(id);
+
+            if (regionDomain == null)
+                return NotFound();
+
+            // Update Domain Model
+            regionDomain.Name = region.Name;
+            regionDomain.Code = region.Code;
+            regionDomain.RegionImageUrl = region.RegionImageUrl;
+
+            // Update Region in Database
+            dbContext.SaveChanges();
+
+            // Map Domain Model to DTO
+            var regionDto = new RegionDto
+            {
+                Id = regionDomain.Id,
+                Name = regionDomain.Name,
+                Code = regionDomain.Code,
+                RegionImageUrl = regionDomain.RegionImageUrl
+            };
+
+            // Return DTO
+            return Ok(regionDto);
         }
     }
 }
