@@ -38,7 +38,6 @@ namespace NZWalks.API.Controllers
         [Route("{id}")]
         public IActionResult GetRegion(Guid id)
         {
-            //var region = dbContext.Regions.Where(r => r.Id == id).SingleOrDefault();
             // Use Find method only for primary key
             // Get Region From Database - Domain Model
             var regionDomain = dbContext.Regions.Find(id);
