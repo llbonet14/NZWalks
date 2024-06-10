@@ -5,11 +5,11 @@ using NZWalks.API.Models.DTO;
 
 namespace NZWalks.API.Repositories
 {
-    public class SQLWalkRepository : IWalkRepository
+    public class SqlWalkRepository : IWalkRepository
     {
         private readonly NZWalksDbContext dbContext;
 
-        public SQLWalkRepository(NZWalksDbContext dbContext)
+        public SqlWalkRepository(NZWalksDbContext dbContext)
         {
             this.dbContext = dbContext;
         }

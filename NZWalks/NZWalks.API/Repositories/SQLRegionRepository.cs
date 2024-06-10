@@ -4,11 +4,11 @@ using NZWalks.API.Models.Domain;
 
 namespace NZWalks.API.Repositories
 {
-    public class SQLRegionRepository : IRegionRepository
+    public class SqlRegionRepository : IRegionRepository
     {
         private readonly NZWalksDbContext dbContext;
 
-        public SQLRegionRepository(NZWalksDbContext dbContext)
+        public SqlRegionRepository(NZWalksDbContext dbContext)
         {
             this.dbContext = dbContext;
         }
@@ -18,7 +18,7 @@ namespace NZWalks.API.Repositories
             return await dbContext.Regions.ToListAsync();
         }
 
-        public async Task<Region> GetByIdAsync(Guid id)
+        public async Task<Region?> GetByIdAsync(Guid id)
         {
             return await dbContext.Regions.FindAsync(id);
         }
