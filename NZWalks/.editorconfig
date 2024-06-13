@@ -247,6 +247,7 @@ dotnet_diagnostic.IDE0010.severity = none
 dotnet_diagnostic.IDE0040.severity = none
 dotnet_diagnostic.IDE0290.severity = none
 dotnet_diagnostic.IDE0072.severity = none
+dotnet_diagnostic.IDE0046.severity = none
 
 # CA1822: Mark members as static
 dotnet_diagnostic.CA1822.severity = none
