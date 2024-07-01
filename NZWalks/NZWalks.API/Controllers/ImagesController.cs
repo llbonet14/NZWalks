@@ -39,7 +39,7 @@ namespace NZWalks.API.Controllers
             return Ok(imageDomain);
         }
 
-        public void ValidateFileUpload(ImageUploadRequestDto request)
+        private void ValidateFileUpload(ImageUploadRequestDto request)
         {
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
 
