@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NZWalks.API.Models.Domain;
 using NZWalks.API.Models.DTO;
+using NZWalks.API.Repositories;
 
 namespace NZWalks.API.Controllers
 {
@@ -8,6 +11,15 @@ namespace NZWalks.API.Controllers
     [ApiController]
     public class ImagesController : ControllerBase
     {
+        private readonly IMapper mapper;
+        private readonly IImageRepository imageRepository;
+
+        public ImagesController(IMapper mapper, IImageRepository imageRepository)
+        {
+            this.mapper = mapper;
+            this.imageRepository = imageRepository;
+        }
+
         [HttpPost]
         [Route("upload")]
         public async Task<IActionResult> UploadImage([FromForm] ImageUploadRequestDto request)
@@ -20,14 +32,11 @@ namespace NZWalks.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", request.FileName);
+            var imageDomain = mapper.Map<Image>(request);
 
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await request.CopyToAsync(stream);
-            }
+            await imageRepository.Upload(imageDomain);
 
-            return Ok("File uploaded successfully");
+            return Ok(imageDomain);
         }
 
         public void ValidateFileUpload(ImageUploadRequestDto request)
